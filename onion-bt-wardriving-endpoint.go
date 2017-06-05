@@ -33,6 +33,7 @@ func main() {
 
 func handleDataRequest(w http.ResponseWriter, req *http.Request) {
 	if req.Method == "POST" {
+		log.Println("Incoming data POST...")
 		decoder := json.NewDecoder(req.Body)
 		var devices []device
 		err := decoder.Decode(&devices)
@@ -41,25 +42,27 @@ func handleDataRequest(w http.ResponseWriter, req *http.Request) {
 		}
 		collectDevices(devices)
 	} else {
-		log.Printf("Invalid method: %s", req.Method)
+		log.Printf("Invalid method: %s\n", req.Method)
 	}
 }
 
 func collectDevices(devices []device) {
+	log.Printf("Collected %v devices\n", len(devices))
 	deviceCollection = append(deviceCollection, devices...)
 }
 
 func handleDoneRequest(w http.ResponseWriter, req *http.Request) {
+	log.Println("Incoming done signal...")
 	writeOutCollection("out/devices.csv")
 }
 
-func writeOutCollection(filename string) {
+func writeOutCollection(path string) {
 	if len(deviceCollection) == 0 {
 		log.Println("Device collection empty")
 		return
 	}
 
-	file, err := os.Create(filename)
+	file, err := os.Create(path)
 	if err != nil {
 		panic(err)
 	}
@@ -94,4 +97,5 @@ func writeOutCollection(filename string) {
 			log.Panicf("Cannot write to file: %v", err)
 		}
 	}
+	log.Printf("CSV written to %s\n", path)
 }

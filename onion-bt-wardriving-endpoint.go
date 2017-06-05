@@ -83,7 +83,12 @@ func writeOutCollection(path string) {
 		line := make([]string, numOfFields)
 		v := reflect.ValueOf(entry)
 		for k := 0; k < numOfFields; k++ {
-			line[k] = v.Field(k).String()
+			field := v.Field(k)
+			if field.Type().Name() == "string" {
+				line[k] = field.String()
+			} else {
+				line[k] = strconv.FormatInt(field.Int(), 10)
+			}
 		}
 		body[j] = line
 	}
